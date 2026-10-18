@@ -303,7 +303,7 @@
                 </div>
 
                 <h1 id="start-title">🌊 Utopia 7Cs Journey 🌊</h1>
-                <p id="start-desc">Steer your ship to clear dense reefs! Rare 7Cs Spirit power-ups appear as you progress:</p>
+                <p id="start-desc">Steer your ship through endless reefs! Rocks get exponentially tougher over time. Collect rare 7Cs power-ups to survive:</p>
                 
                 <div class="concept-list" id="concept-list-content">
                     🛡️ <b>Commitment</b>: Energy Shield<br>
@@ -346,7 +346,7 @@
                 labelStatus: 'HP / SHIELD',
                 controlsHint: '← Drag screen or use A/D keys to steer →',
                 startTitle: '🌊 Utopia 7Cs Journey 🌊',
-                startDesc: 'Steer your ship to clear dense reefs! Rare 7Cs Spirit power-ups appear as you progress:',
+                startDesc: 'Steer your ship through endless reefs! Rocks get exponentially tougher over time. Collect rare 7Cs power-ups to survive:',
                 btnStart: 'Set Sail',
                 gameoverTitle: '💥 Voyage Interrupted 💥',
                 gameoverDesc: 'Final Score:',
@@ -379,7 +379,7 @@
                 labelStatus: '血量 / 護盾',
                 controlsHint: '← 滑動螢幕或使用 A/D 鍵控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '駕駛船隻清除大量暗礁！後期難度倍增，稀有 7Cs 精神道具現身：',
+                startDesc: '駕駛船隻突破無限暗礁！石頭血量會隨分數無限遞增，善用 7Cs 精神挑戰極限：',
                 btnStart: '啟航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最終總得分：',
@@ -412,7 +412,7 @@
                 labelStatus: '血量 / 护盾',
                 controlsHint: '← 滑动屏幕或使用 A/D 键控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '驾驶船只清除大量暗礁！后期难度倍增，稀有 7Cs 精神道具现身：',
+                startDesc: '驾驶船只突破无限暗礁！石头血量会随分数无限递增，善用 7Cs 精神挑战极限：',
                 btnStart: '启航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最终总得分：',
@@ -517,7 +517,7 @@
         const player = {
             x: logicalWidth / 2,
             y: logicalHeight - 90,
-            radius: 34, // 🔍 稍微放大船隻半徑 (從 28 改為 34)，讓 Logo 顯示得更清晰！
+            radius: 34,
             speed: 7,
             dx: 0,
             hasShield: false,
@@ -635,6 +635,7 @@
             }
         }
 
+        // 🪨 無限成長 HP：不設血量上限，隨分數持續加強！
         function spawnRock() {
             let difficultyBonus = Math.min(score * 0.0015, 0.08);
             if (Math.random() < (0.03 + difficultyBonus)) {
@@ -649,7 +650,11 @@
                 }
 
                 let speedMultiplier = 1 + (score * 0.0035);
-                let initialHp = baseRadius > 25 ? 2 : 1;
+                
+                // 🔥 血量無上限遞增算法：每 80 分就增加 1 點基礎 HP，完全無上限！
+                let baseHp = baseRadius > 25 ? 2 : 1;
+                let scoreExtraHp = Math.floor(score / 80); 
+                let initialHp = baseHp + scoreExtraHp;
 
                 rocks.push({
                     x: Math.random() * (logicalWidth - baseRadius * 2) + baseRadius,
@@ -700,7 +705,6 @@
                 lastShootTime = timestamp;
             }
 
-            // 🚢 繪製清晰放大的船隻 Logo
             ctx.save();
             if (player.hasShield) {
                 ctx.beginPath();
@@ -877,7 +881,7 @@
                         if (r.hp <= 0) {
                             createParticles(r.x, r.y, '#78716c');
                             
-                            if (Math.random() < 0.18) {
+                            if (Math.random() < 0.10) {
                                 const concepts = [
                                     { name: 'Commitment', icon: '🛡️', bgColor: '#1e3a8a' },
                                     { name: 'Courage', icon: '⚡', bgColor: '#b45309' },
