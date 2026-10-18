@@ -303,7 +303,7 @@
                 </div>
 
                 <h1 id="start-title">🌊 Utopia 7Cs Journey 🌊</h1>
-                <p id="start-desc">Steer your ship to clear reefs! Difficulty scales with score. Collect the 7Cs Spirit power-ups:</p>
+                <p id="start-desc">Steer your ship to clear dense reefs! Rare 7Cs Spirit power-ups appear as you progress:</p>
                 
                 <div class="concept-list" id="concept-list-content">
                     🛡️ <b>Commitment</b>: Energy Shield<br>
@@ -346,7 +346,7 @@
                 labelStatus: 'HP / SHIELD',
                 controlsHint: '← Drag screen or use A/D keys to steer →',
                 startTitle: '🌊 Utopia 7Cs Journey 🌊',
-                startDesc: 'Steer your ship to clear reefs! Difficulty scales with score. Collect the 7Cs Spirit power-ups:',
+                startDesc: 'Steer your ship to clear dense reefs! Rare 7Cs Spirit power-ups appear as you progress:',
                 btnStart: 'Set Sail',
                 gameoverTitle: '💥 Voyage Interrupted 💥',
                 gameoverDesc: 'Final Score:',
@@ -379,7 +379,7 @@
                 labelStatus: '血量 / 護盾',
                 controlsHint: '← 滑動螢幕或使用 A/D 鍵控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '駕駛船隻清除海上暗礁！難度隨分數遞增，收集 7Cs 精神解鎖強大力量：',
+                startDesc: '駕駛船隻清除大量暗礁！後期難度倍增，稀有 7Cs 精神道具現身：',
                 btnStart: '啟航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最終總得分：',
@@ -412,7 +412,7 @@
                 labelStatus: '血量 / 护盾',
                 controlsHint: '← 滑动屏幕或使用 A/D 键控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '驾驶船只清除海上暗礁！难度随分数递增，收集 7Cs 精神解锁强大力量：',
+                startDesc: '驾驶船只清除大量暗礁！后期难度倍增，稀有 7Cs 精神道具现身：',
                 btnStart: '启航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最终总得分：',
@@ -442,7 +442,7 @@
             }
         };
 
-        let currentLang = 'en'; // 預設英文版最順手
+        let currentLang = 'en';
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -623,9 +623,10 @@
             }
         }
 
+        // 📈 後期石頭數量大幅增加、密度更高
         function spawnRock() {
-            let difficultyBonus = Math.min(score * 0.0008, 0.05);
-            if (Math.random() < (0.025 + difficultyBonus)) {
+            let difficultyBonus = Math.min(score * 0.0015, 0.08); // 後期生成頻率提升更多
+            if (Math.random() < (0.03 + difficultyBonus)) {
                 const baseRadius = Math.random() * 15 + 18;
                 const numVertices = Math.floor(Math.random() * 4) + 7;
                 const vertices = [];
@@ -636,7 +637,7 @@
                     vertices.push({ r: baseRadius + offset, angle: angle });
                 }
 
-                let speedMultiplier = 1 + (score * 0.003);
+                let speedMultiplier = 1 + (score * 0.0035);
                 let initialHp = baseRadius > 25 ? 2 : 1;
 
                 rocks.push({
@@ -646,7 +647,7 @@
                     vertices: vertices,
                     angle: Math.random() * Math.PI * 2,
                     rotationSpeed: (Math.random() - 0.5) * 0.03,
-                    speed: (Math.random() * 2 + 2.2) * speedMultiplier,
+                    speed: (Math.random() * 2 + 2.4) * speedMultiplier,
                     hp: initialHp,
                     maxHp: initialHp
                 });
@@ -728,6 +729,7 @@
                 if (b.y < -10) bullets.splice(i, 1);
             }
 
+            // 🌟 道具更新：外觀加強光暈與明顯發光特效
             for (let i = powerups.length - 1; i >= 0; i--) {
                 let p = powerups[i];
                 
@@ -740,16 +742,24 @@
                     p.y += p.speed;
                 }
 
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
                 ctx.fillStyle = p.bgColor;
+                ctx.shadowColor = '#ffffff';
+                ctx.shadowBlur = 15; // 超強烈發光效果
                 ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
                 ctx.fillStyle = '#ffffff';
-                ctx.font = '14px sans-serif';
+                ctx.font = '15px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(p.icon, p.x, p.y + 5);
+                ctx.restore();
 
-                let catchRadius = player.wideRange ? player.radius + 35 : player.radius + 16;
+                let catchRadius = player.wideRange ? player.radius + 35 : player.radius + 18;
                 let dist = Math.hypot(player.x - p.x, player.y - p.y);
                 if (dist < catchRadius) {
                     if (collectedStats[p.concept] !== undefined) {
@@ -854,7 +864,8 @@
                         if (r.hp <= 0) {
                             createParticles(r.x, r.y, '#78716c');
                             
-                            if (Math.random() < 0.3) {
+                            // 📉 減少道具掉落機率（從 30% 調低至 18%，讓道具更珍貴）
+                            if (Math.random() < 0.18) {
                                 const concepts = [
                                     { name: 'Commitment', icon: '🛡️', bgColor: '#1e3a8a' },
                                     { name: 'Courage', icon: '⚡', bgColor: '#b45309' },
