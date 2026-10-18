@@ -201,15 +201,28 @@
             color: #38bdf8;
         }
 
+        /* 🏆 最高分顯示欄位 */
+        .high-score-badge {
+            background: rgba(250, 204, 21, 0.15);
+            border: 1px solid rgba(250, 204, 21, 0.4);
+            color: #facc15;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
         .stats-box {
             text-align: left;
             font-size: 0.8rem;
             background: rgba(0, 0, 0, 0.35);
             padding: 12px 15px;
             border-radius: 14px;
-            margin: 10px 0 20px 0;
+            margin: 10px 0 15px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 150px;
+            max-height: 130px;
             overflow-y: auto;
         }
         .stats-title {
@@ -303,7 +316,11 @@
                 </div>
 
                 <h1 id="start-title">🌊 Utopia 7Cs Journey 🌊</h1>
-                <p id="start-desc">Steer your ship through endless reefs! Rocks get exponentially tougher over time. Collect rare 7Cs power-ups to survive:</p>
+                
+                <!-- 首頁顯示最高分 -->
+                <div id="start-highscore" class="high-score-badge">🏆 High Score: 0</div>
+
+                <p id="start-desc">Steer your ship through endless reefs! Rocks get tougher over time. Collect rare 7Cs power-ups to survive:</p>
                 
                 <div class="concept-list" id="concept-list-content">
                     🛡️ <b>Commitment</b>: Energy Shield<br>
@@ -324,7 +341,10 @@
             <div class="panel">
                 <h1 id="gameover-title">💥 Voyage Interrupted 💥</h1>
                 <p id="gameover-desc">Final Score:</p>
-                <div id="final-score" style="font-size: 2.2rem; font-weight: bold; color: #38bdf8; margin-bottom: 10px;">0</div>
+                <div id="final-score" style="font-size: 2rem; font-weight: bold; color: #38bdf8; margin-bottom: 5px;">0</div>
+                
+                <!-- 結算畫面顯示最高分 / 破紀錄提示 -->
+                <div id="gameover-highscore" class="high-score-badge">🏆 High Score: 0</div>
                 
                 <div class="stats-box">
                     <div class="stats-title" id="stats-title">🌟 7Cs Spirit Collected:</div>
@@ -346,7 +366,7 @@
                 labelStatus: 'HP / SHIELD',
                 controlsHint: '← Drag screen or use A/D keys to steer →',
                 startTitle: '🌊 Utopia 7Cs Journey 🌊',
-                startDesc: 'Steer your ship through endless reefs! Rocks get exponentially tougher over time. Collect rare 7Cs power-ups to survive:',
+                startDesc: 'Steer your ship through endless reefs! Rocks get tougher over time. Collect rare 7Cs power-ups to survive:',
                 btnStart: 'Set Sail',
                 gameoverTitle: '💥 Voyage Interrupted 💥',
                 gameoverDesc: 'Final Score:',
@@ -355,6 +375,8 @@
                 btnHome: 'Main Menu',
                 noStats: 'Keep going! Collect 7Cs Spirit badges on your journey!',
                 shieldAbsorbed: '🛡️ Energy Shield blocked an impact!',
+                highScoreText: '🏆 High Score: ',
+                newHighScoreText: '🔥 NEW HIGH SCORE: ',
                 concepts: {
                     Commitment: '🛡️ Commitment: Shield Activated!',
                     Courage: '⚡ Courage: Double Shot!',
@@ -379,7 +401,7 @@
                 labelStatus: '血量 / 護盾',
                 controlsHint: '← 滑動螢幕或使用 A/D 鍵控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '駕駛船隻突破無限暗礁！石頭血量會隨分數無限遞增，善用 7Cs 精神挑戰極限：',
+                startDesc: '駕駛船隻突破無限暗礁！石頭血量隨分數無限遞增，善用 7Cs 精神挑戰極限：',
                 btnStart: '啟航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最終總得分：',
@@ -388,6 +410,8 @@
                 btnHome: '返回主頁',
                 noStats: '繼續加油！在航程中多收集 7Cs 精神徽章！',
                 shieldAbsorbed: '🛡️ 護盾已成功抵擋一次撞擊！',
+                highScoreText: '🏆 最高紀錄：',
+                newHighScoreText: '🔥 創下新高紀錄：',
                 concepts: {
                     Commitment: '🛡️ Commitment: 獲得堅固護盾！',
                     Courage: '⚡ Courage: 啟動雙發子彈！',
@@ -412,7 +436,7 @@
                 labelStatus: '血量 / 护盾',
                 controlsHint: '← 滑动屏幕或使用 A/D 键控制航向 →',
                 startTitle: '🌊 Utopia 7Cs 航程 🌊',
-                startDesc: '驾驶船只突破无限暗礁！石头血量会随分数无限递增，善用 7Cs 精神挑战极限：',
+                startDesc: '驾驶船只突破无限暗礁！石头血量随分数无限递增，善用 7Cs 精神挑战极限：',
                 btnStart: '启航',
                 gameoverTitle: '💥 航道受阻 💥',
                 gameoverDesc: '最终总得分：',
@@ -421,6 +445,8 @@
                 btnHome: '返回主页',
                 noStats: '继续加油！在航程中多收集 7Cs 精神徽章！',
                 shieldAbsorbed: '🛡️ 护盾已成功抵挡一次撞击！',
+                highScoreText: '🏆 最高纪录：',
+                newHighScoreText: '🔥 创下新高纪录：',
                 concepts: {
                     Commitment: '🛡️ Commitment: 获得坚固护盾！',
                     Courage: '⚡ Courage: 启动双发子弹！',
@@ -444,6 +470,15 @@
 
         let currentLang = 'en';
 
+        // 🏆 從 localStorage 讀取最高分
+        let highScore = localStorage.getItem('utopia_high_score') || 0;
+
+        function updateHighScoreDisplay() {
+            const text = i18n[currentLang].highScoreText + highScore;
+            document.getElementById('start-highscore').innerText = text;
+            document.getElementById('gameover-highscore').innerText = text;
+        }
+
         function setLanguage(lang) {
             currentLang = lang;
             const data = i18n[lang];
@@ -460,6 +495,8 @@
             document.getElementById('btn-restart').innerText = data.btnRestart;
             document.getElementById('btn-home').innerText = data.btnHome;
             document.getElementById('concept-list-content').innerHTML = data.conceptListHtml;
+
+            updateHighScoreDisplay();
 
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
@@ -586,6 +623,7 @@
 
         function goHome() {
             gameActive = false;
+            updateHighScoreDisplay();
             gameoverScreen.classList.add('hidden');
             startScreen.classList.remove('hidden');
         }
@@ -635,7 +673,6 @@
             }
         }
 
-        // 🪨 無限成長 HP：不設血量上限，隨分數持續加強！
         function spawnRock() {
             let difficultyBonus = Math.min(score * 0.0015, 0.08);
             if (Math.random() < (0.03 + difficultyBonus)) {
@@ -650,8 +687,6 @@
                 }
 
                 let speedMultiplier = 1 + (score * 0.0035);
-                
-                // 🔥 血量無上限遞增算法：每 80 分就增加 1 點基礎 HP，完全無上限！
                 let baseHp = baseRadius > 25 ? 2 : 1;
                 let scoreExtraHp = Math.floor(score / 80); 
                 let initialHp = baseHp + scoreExtraHp;
@@ -958,6 +993,20 @@
             gameActive = false;
             finalScoreEl.innerText = score;
 
+            // 🏆 檢查並更新最高分
+            const langData = i18n[currentLang];
+            const highcoreBadge = document.getElementById('gameover-highscore');
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('utopia_high_score', highScore);
+                highcoreBadge.innerHTML = langData.newHighScoreText + highScore;
+                highcoreBadge.style.color = '#4ade80'; // 破紀錄顯示綠色
+            } else {
+                highcoreBadge.innerHTML = langData.highScoreText + highScore;
+                highcoreBadge.style.color = '#facc15';
+            }
+
             let statsHTML = '';
             let totalCollected = 0;
             const conceptMeta = {
@@ -983,7 +1032,7 @@
             }
 
             if (totalCollected === 0) {
-                statsHTML = `<div style="text-align:center; color:#94a3b8; font-size:0.75rem;">${i18n[currentLang].noStats}</div>`;
+                statsHTML = `<div style="text-align:center; color:#94a3b8; font-size:0.75rem;">${langData.noStats}</div>`;
             }
 
             conceptStatsContent.innerHTML = statsHTML;
