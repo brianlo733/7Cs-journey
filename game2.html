@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Utopia 7Cs - Ocean Adventure</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #103852;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 480px;
+            max-height: 850px;
+            background: linear-gradient(to bottom, #1b4f72 0%, #2980b9 50%, #3895c4 100%);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wave-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 120px;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 140" xmlns="http://www.w3.org/2000/svg"><path d="M0,40 Q180,90 360,30 T720,30 T1080,30 T1200,40 L1200,140 L0,140 Z" fill="%2338bdf8" opacity="0.3"/></svg>');
+            background-size: 600px 120px;
+            animation: waveMove 6s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes waveMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .hud {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 32, 39, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+        .hud-item {
+            text-align: center;
+        }
+        .hud-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+        .hud-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .status-slots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 1.1rem;
+        }
+        .slot-heart, .slot-shield {
+            transition: opacity 0.3s ease;
+        }
+        .slot-off {
+            opacity: 0.25;
+            filter: grayscale(100%);
+        }
+
+        #active-concept {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 198, 255, 0.2);
+            border: 1px solid rgba(0, 198, 255, 0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #e0f2fe;
+            z-index: 10;
+            display: none;
+            backdrop-filter: blur(5px);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 32, 39, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            padding: 20px;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        .screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 22px 18px;
+            border-radius: 24px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .lang-selector {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lang-btn.active {
+            background: #38bdf8;
+            color: #0f172a;
+            font-weight: bold;
+            border-color: #38bdf8;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.6);
+        }
+        p {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .concept-list {
+            text-align: left;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .concept-list b {
+            color: #38bdf8;
+        }
+
+        .stats-box {
+            text-align: left;
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 12px 15px;
+            border-radius: 14px;
+            margin: 10px 0 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .stats-title {
+            font-size: 0.85rem;
+            color: #38bdf8;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            color: #e2e8f0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.5);
+            flex: 1;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #475569, #1e293b);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .controls-hint {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            z-index: 10;
+            pointer-events: none;
+            width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="wave-bg"></div>
+
+        <div class="hud">
+            <div class="hud-item">
+                <div class="hud-label" id="label-score">SCORE</div>
+                <div id="score" class="hud-value">0</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label" id="label-status">HP / SHIELD</div>
+                <div id="status-slots" class="status-slots">
+                    <span id="heart-1" class="slot-heart">❤️</span>
+                    <span id="heart-2" class="slot-heart">❤️</span>
+                    <span id="heart-3" class="slot-heart">❤️</span>
+                    <span id="shield-slot" class="slot-shield slot-off">🛡️</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="active-concept">7Cs Spirit Activated: None</div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="controls-hint" id="controls-hint">← Drag screen or use A/D keys to steer →</div>
+
+        <!-- 開始畫面 -->
+        <div id="start-screen" class="screen">
+            <div class="panel">
+                <div class="lang-selector">
+                    <button class="lang-btn" onclick="setLanguage('zh-HK')">繁體中文</button>
+                    <button class="lang-btn" onclick="setLanguage('zh-CN')">简体中文</button>
+                    <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+                </div>
+
+                <h1 id="start-title">🌊 Utopia 7Cs Journey 🌊</h1>
+                <p id="start-desc">Steer your ship to clear reefs! Difficulty scales with score. Collect the 7Cs Spirit power-ups:</p>
+                
+                <div class="concept-list" id="concept-list-content">
+                    🛡️ <b>Commitment</b>: Energy Shield<br>
+                    ⚡ <b>Courage</b>: Double Shot<br>
+                    💥 <b>Cultivation</b>: Giant Bullet<br>
+                    ✨ <b>Compassion</b>: Restore HP<br>
+                    🌐 <b>Connection</b>: Item Magnet<br>
+                    💬 <b>Communication</b>: Rapid Fire<br>
+                    🎯 <b>Consideration</b>: Extended Range
+                </div>
+
+                <button class="btn" id="btn-start" onclick="startGame()">Set Sail</button>
+            </div>
+        </div>
+
+        <!-- 遊戲結束畫面 -->
+        <div id="gameover-screen" class="screen hidden">
+            <div class="panel">
+                <h1 id="gameover-title">💥 Voyage Interrupted 💥</h1>
+                <p id="gameover-desc">Final Score:</p>
+                <div id="final-score" style="font-size: 2.2rem; font-weight: bold; color: #38bdf8; margin-bottom: 10px;">0</div>
+                
+                <div class="stats-box">
+                    <div class="stats-title" id="stats-title">🌟 7Cs Spirit Collected:</div>
+                    <div id="concept-stats-content">None</div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn" id="btn-restart" onclick="startGame()">Play Again</button>
+                    <button class="btn btn-secondary" id="btn-home" onclick="goHome()">Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            'en': {
+                labelScore: 'SCORE',
+                labelStatus: 'HP / SHIELD',
+                controlsHint: '← Drag screen or use A/D keys to steer →',
+                startTitle: '🌊 Utopia 7Cs Journey 🌊',
+                startDesc: 'Steer your ship to clear reefs! Difficulty scales with score. Collect the 7Cs Spirit power-ups:',
+                btnStart: 'Set Sail',
+                gameoverTitle: '💥 Voyage Interrupted 💥',
+                gameoverDesc: 'Final Score:',
+                statsTitle: '🌟 7Cs Spirit Collected:',
+                btnRestart: 'Play Again',
+                btnHome: 'Main Menu',
+                noStats: 'Keep going! Collect 7Cs Spirit badges on your journey!',
+                shieldAbsorbed: '🛡️ Energy Shield blocked an impact!',
+                concepts: {
+                    Commitment: '🛡️ Commitment: Shield Activated!',
+                    Courage: '⚡ Courage: Double Shot!',
+                    Cultivation: '💥 Cultivation: Giant Bullet!',
+                    Compassion: '✨ Compassion: Health Restored!',
+                    Connection: '🌐 Connection: Item Magnet!',
+                    Communication: '💬 Communication: Rapid Fire!',
+                    Consideration: '🎯 Consideration: Extended Range!'
+                },
+                conceptListHtml: `
+                    🛡️ <b>Commitment</b>: Energy Shield<br>
+                    ⚡ <b>Courage</b>: Double Shot<br>
+                    💥 <b>Cultivation</b>: Giant Bullet<br>
+                    ✨ <b>Compassion</b>: Restore HP<br>
+                    🌐 <b>Connection</b>: Item Magnet<br>
+                    💬 <b>Communication</b>: Rapid Fire<br>
+                    🎯 <b>Consideration</b>: Extended Range
+                `
+            },
+            'zh-HK': {
+                labelScore: '得分',
+                labelStatus: '血量 / 護盾',
+                controlsHint: '← 滑動螢幕或使用 A/D 鍵控制航向 →',
+                startTitle: '🌊 Utopia 7Cs 航程 🌊',
+                startDesc: '駕駛船隻清除海上暗礁！難度隨分數遞增，收集 7Cs 精神解鎖強大力量：',
+                btnStart: '啟航',
+                gameoverTitle: '💥 航道受阻 💥',
+                gameoverDesc: '最終總得分：',
+                statsTitle: '🌟 收集到的 7Cs 精神：',
+                btnRestart: '再次出航',
+                btnHome: '返回主頁',
+                noStats: '繼續加油！在航程中多收集 7Cs 精神徽章！',
+                shieldAbsorbed: '🛡️ 護盾已成功抵擋一次撞擊！',
+                concepts: {
+                    Commitment: '🛡️ Commitment: 獲得堅固護盾！',
+                    Courage: '⚡ Courage: 啟動雙發子彈！',
+                    Cultivation: '💥 Cultivation: 啟動巨大化能量彈！',
+                    Compassion: '✨ Compassion: 團隊關懷，生命值恢復！',
+                    Connection: '🌐 Connection: 連結全場，自動吸取道具！',
+                    Communication: '💬 Communication: 資訊流暢，超高射速！',
+                    Consideration: '🎯 Consideration: 周全視野，擴大範圍！'
+                },
+                conceptListHtml: `
+                    🛡️ <b>Commitment</b>: 堅固護盾<br>
+                    ⚡ <b>Courage</b>: 雙發子彈<br>
+                    💥 <b>Cultivation</b>: 巨大化子彈<br>
+                    ✨ <b>Compassion</b>: 回復生命<br>
+                    🌐 <b>Connection</b>: 自動吸取道具<br>
+                    💬 <b>Communication</b>: 超高射速<br>
+                    🎯 <b>Consideration</b>: 擴大範圍
+                `
+            },
+            'zh-CN': {
+                labelScore: '得分',
+                labelStatus: '血量 / 护盾',
+                controlsHint: '← 滑动屏幕或使用 A/D 键控制航向 →',
+                startTitle: '🌊 Utopia 7Cs 航程 🌊',
+                startDesc: '驾驶船只清除海上暗礁！难度随分数递增，收集 7Cs 精神解锁强大力量：',
+                btnStart: '启航',
+                gameoverTitle: '💥 航道受阻 💥',
+                gameoverDesc: '最终总得分：',
+                statsTitle: '🌟 收集到的 7Cs 精神：',
+                btnRestart: '再次出航',
+                btnHome: '返回主页',
+                noStats: '继续加油！在航程中多收集 7Cs 精神徽章！',
+                shieldAbsorbed: '🛡️ 护盾已成功抵挡一次撞击！',
+                concepts: {
+                    Commitment: '🛡️ Commitment: 获得坚固护盾！',
+                    Courage: '⚡ Courage: 启动双发子弹！',
+                    Cultivation: '💥 Cultivation: 启动巨大化能量弹！',
+                    Compassion: '✨ Compassion: 团队关怀，生命值恢复！',
+                    Connection: '🌐 Connection: 链接全场，自动吸取道具！',
+                    Communication: '💬 Communication: 资讯流畅，超高射速！',
+                    Consideration: '🎯 Consideration: 扩大范围！'
+                },
+                conceptListHtml: `
+                    🛡️ <b>Commitment</b>: 坚固护盾<br>
+                    ⚡ <b>Courage</b>: 双发子弹<br>
+                    💥 <b>Cultivation</b>: 巨大化子弹<br>
+                    ✨ <b>Compassion</b>: 回复生命<br>
+                    🌐 <b>Connection</b>: 自动吸取道具<br>
+                    💬 <b>Communication</b>: 超高射速<br>
+                    🎯 <b>Consideration</b>: 扩大范围
+                `
+            }
+        };
+
+        let currentLang = 'en'; // 預設英文版最順手
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const data = i18n[lang];
+
+            document.getElementById('label-score').innerText = data.labelScore;
+            document.getElementById('label-status').innerText = data.labelStatus;
+            document.getElementById('controls-hint').innerText = data.controlsHint;
+            document.getElementById('start-title').innerText = data.startTitle;
+            document.getElementById('start-desc').innerText = data.startDesc;
+            document.getElementById('btn-start').innerText = data.btnStart;
+            document.getElementById('gameover-title').innerText = data.gameoverTitle;
+            document.getElementById('gameover-desc').innerText = data.gameoverDesc;
+            document.getElementById('stats-title').innerText = data.statsTitle;
+            document.getElementById('btn-restart').innerText = data.btnRestart;
+            document.getElementById('btn-home').innerText = data.btnHome;
+            document.getElementById('concept-list-content').innerHTML = data.conceptListHtml;
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('final-score');
+        const startScreen = document.getElementById('start-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const activeConceptEl = document.getElementById('active-concept');
+        const conceptStatsContent = document.getElementById('concept-stats-content');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const shipImg = new Image();
+        shipImg.src = 'SU image.jpg';
+
+        let gameActive = false;
+        let score = 0;
+        let lives = 3;
+        let bullets = [];
+        let rocks = [];
+        let particles = [];
+        let powerups = [];
+        let lastShootTime = 0;
+
+        let collectedStats = {
+            Commitment: 0,
+            Courage: 0,
+            Cultivation: 0,
+            Compassion: 0,
+            Connection: 0,
+            Communication: 0,
+            Consideration: 0
+        };
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 90,
+            radius: 28,
+            speed: 7,
+            dx: 0,
+            hasShield: false,
+            doubleShot: false,
+            giantBullet: false,
+            rapidFire: false,
+            magnetMode: false,
+            wideRange: false,
+            powerupTimer: 0
+        };
+
+        let isTouching = false;
+        let touchStartX = 0;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') player.dx = -player.speed;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') player.dx = player.speed;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (['ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D'].includes(e.key)) player.dx = 0;
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            touchStartX = e.touches[0].clientX;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isTouching) return;
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - touchStartX;
+            player.x += diff * 1.2;
+            touchStartX = touchX;
+
+            if (player.x < player.radius) player.x = player.radius;
+            if (player.x > canvas.width - player.radius) player.x = canvas.width - player.radius;
+        });
+
+        canvas.addEventListener('touchend', () => isTouching = false);
+
+        function startGame() {
+            score = 0;
+            lives = 3;
+            bullets = [];
+            rocks = [];
+            particles = [];
+            powerups = [];
+            
+            for (let k in collectedStats) {
+                collectedStats[k] = 0;
+            }
+
+            resetBuffs();
+            player.x = canvas.width / 2;
+            scoreEl.innerText = score;
+            updateLivesDisplay();
+
+            startScreen.classList.add('hidden');
+            gameoverScreen.classList.add('hidden');
+            gameActive = true;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function goHome() {
+            gameActive = false;
+            gameoverScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        function resetBuffs() {
+            player.hasShield = false;
+            player.doubleShot = false;
+            player.giantBullet = false;
+            player.rapidFire = false;
+            player.magnetMode = false;
+            player.wideRange = false;
+            player.powerupTimer = 0;
+            activeConceptEl.style.display = 'none';
+        }
+
+        function updateLivesDisplay() {
+            for (let i = 1; i <= 3; i++) {
+                const heartSlot = document.getElementById(`heart-${i}`);
+                if (i <= lives) {
+                    heartSlot.classList.remove('slot-off');
+                } else {
+                    heartSlot.classList.add('slot-off');
+                }
+            }
+
+            const shieldSlot = document.getElementById('shield-slot');
+            if (player.hasShield) {
+                shieldSlot.classList.remove('slot-off');
+            } else {
+                shieldSlot.classList.add('slot-off');
+            }
+        }
+
+        function showActiveConceptText(text) {
+            activeConceptEl.innerText = text;
+            activeConceptEl.style.display = 'block';
+        }
+
+        function shoot() {
+            let bRadius = player.giantBullet ? 9 : 4;
+            let bSpeed = 10;
+            if (player.doubleShot) {
+                bullets.push({ x: player.x - 14, y: player.y - player.radius, radius: bRadius, speed: bSpeed, giant: player.giantBullet });
+                bullets.push({ x: player.x + 14, y: player.y - player.radius, radius: bRadius, speed: bSpeed, giant: player.giantBullet });
+            } else {
+                bullets.push({ x: player.x, y: player.y - player.radius, radius: bRadius, speed: bSpeed, giant: player.giantBullet });
+            }
+        }
+
+        function spawnRock() {
+            let difficultyBonus = Math.min(score * 0.0008, 0.05);
+            if (Math.random() < (0.025 + difficultyBonus)) {
+                const baseRadius = Math.random() * 15 + 18;
+                const numVertices = Math.floor(Math.random() * 4) + 7;
+                const vertices = [];
+
+                for (let i = 0; i < numVertices; i++) {
+                    const angle = (i / numVertices) * Math.PI * 2;
+                    const offset = (Math.random() * 0.4 - 0.2) * baseRadius;
+                    vertices.push({ r: baseRadius + offset, angle: angle });
+                }
+
+                let speedMultiplier = 1 + (score * 0.003);
+                let initialHp = baseRadius > 25 ? 2 : 1;
+
+                rocks.push({
+                    x: Math.random() * (canvas.width - baseRadius * 2) + baseRadius,
+                    y: -baseRadius,
+                    radius: baseRadius,
+                    vertices: vertices,
+                    angle: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.03,
+                    speed: (Math.random() * 2 + 2.2) * speedMultiplier,
+                    hp: initialHp,
+                    maxHp: initialHp
+                });
+            }
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 3 + 1,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
+        function gameLoop(timestamp) {
+            if (!gameActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (player.powerupTimer > 0) {
+                player.powerupTimer--;
+                if (player.powerupTimer <= 0) {
+                    resetBuffs();
+                }
+            }
+
+            player.x += player.dx;
+            if (player.x < player.radius) player.x = player.radius;
+            if (player.x > canvas.width - player.radius) player.x = canvas.width - player.radius;
+
+            let shootInterval = player.rapidFire ? 90 : 180;
+            if (timestamp - lastShootTime > shootInterval) {
+                shoot();
+                lastShootTime = timestamp;
+            }
+
+            ctx.save();
+            if (player.hasShield) {
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 3;
+                ctx.shadowColor = '#00c6ff';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.shadowColor = '#00c6ff';
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.clip();
+            if (shipImg.complete && shipImg.naturalWidth !== 0) {
+                ctx.drawImage(shipImg, player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('⛵', player.x, player.y + 8);
+            }
+            ctx.restore();
+
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.y -= b.speed;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fillStyle = b.giant ? '#facc15' : '#38bdf8';
+                ctx.shadowColor = b.giant ? '#facc15' : '#38bdf8';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                if (b.y < -10) bullets.splice(i, 1);
+            }
+
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                let p = powerups[i];
+                
+                if (player.magnetMode) {
+                    let dx = player.x - p.x;
+                    let dy = player.y - p.y;
+                    p.x += dx * 0.05;
+                    p.y += dy * 0.05;
+                } else {
+                    p.y += p.speed;
+                }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+                ctx.fillStyle = p.bgColor;
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.icon, p.x, p.y + 5);
+
+                let catchRadius = player.wideRange ? player.radius + 35 : player.radius + 16;
+                let dist = Math.hypot(player.x - p.x, player.y - p.y);
+                if (dist < catchRadius) {
+                    if (collectedStats[p.concept] !== undefined) {
+                        collectedStats[p.concept]++;
+                    }
+
+                    const langData = i18n[currentLang];
+
+                    if (p.concept === 'Commitment') {
+                        player.hasShield = true;
+                        showActiveConceptText(langData.concepts.Commitment);
+                    } else if (p.concept === 'Courage') {
+                        player.doubleShot = true;
+                        player.powerupTimer = 350;
+                        showActiveConceptText(langData.concepts.Courage);
+                    } else if (p.concept === 'Cultivation') {
+                        player.giantBullet = true;
+                        player.powerupTimer = 350;
+                        showActiveConceptText(langData.concepts.Cultivation);
+                    } else if (p.concept === 'Compassion') {
+                        if (lives < 3) lives++;
+                        showActiveConceptText(langData.concepts.Compassion);
+                    } else if (p.concept === 'Connection') {
+                        player.magnetMode = true;
+                        player.powerupTimer = 300;
+                        showActiveConceptText(langData.concepts.Connection);
+                    } else if (p.concept === 'Communication') {
+                        player.rapidFire = true;
+                        player.powerupTimer = 300;
+                        showActiveConceptText(langData.concepts.Communication);
+                    } else if (p.concept === 'Consideration') {
+                        player.wideRange = true;
+                        player.powerupTimer = 300;
+                        showActiveConceptText(langData.concepts.Consideration);
+                    }
+
+                    updateLivesDisplay();
+                    powerups.splice(i, 1);
+                } else if (p.y > canvas.height + 20) {
+                    powerups.splice(i, 1);
+                }
+            }
+
+            spawnRock();
+            for (let i = rocks.length - 1; i >= 0; i--) {
+                let r = rocks[i];
+                r.y += r.speed;
+                r.angle += r.rotationSpeed;
+
+                ctx.save();
+                ctx.translate(r.x, r.y);
+                ctx.rotate(r.angle);
+
+                ctx.beginPath();
+                r.vertices.forEach((v, index) => {
+                    let vx = Math.cos(v.angle) * v.r;
+                    let vy = Math.sin(v.angle) * v.r;
+                    if (index === 0) ctx.moveTo(vx, vy);
+                    else ctx.lineTo(vx, vy);
+                });
+                ctx.closePath();
+
+                ctx.fillStyle = r.hp > 1 ? '#57534e' : '#78716c';
+                ctx.strokeStyle = '#a8a29e';
+                ctx.lineWidth = 2.5;
+                ctx.fill();
+                ctx.stroke();
+
+                if (r.hp < r.maxHp) {
+                    ctx.beginPath();
+                    ctx.moveTo(-r.radius * 0.4, -r.radius * 0.3);
+                    ctx.lineTo(r.radius * 0.2, r.radius * 0.1);
+                    ctx.lineTo(r.radius * 0.4, -r.radius * 0.2);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(-r.radius * 0.2, r.radius * 0.3);
+                    ctx.lineTo(0, 0);
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(-r.radius * 0.3, -r.radius * 0.2);
+                    ctx.lineTo(r.radius * 0.2, r.radius * 0.3);
+                    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    let b = bullets[j];
+                    let dist = Math.hypot(b.x - r.x, b.y - r.y);
+                    let hitRadius = b.giant ? b.radius + r.radius : b.radius + r.radius;
+                    if (dist < hitRadius) {
+                        bullets.splice(j, 1);
+                        r.hp -= b.giant ? 2 : 1;
+                        createParticles(b.x, b.y, '#a8a29e');
+
+                        if (r.hp <= 0) {
+                            createParticles(r.x, r.y, '#78716c');
+                            
+                            if (Math.random() < 0.3) {
+                                const concepts = [
+                                    { name: 'Commitment', icon: '🛡️', bgColor: '#1e3a8a' },
+                                    { name: 'Courage', icon: '⚡', bgColor: '#b45309' },
+                                    { name: 'Cultivation', icon: '💥', bgColor: '#831843' },
+                                    { name: 'Compassion', icon: '✨', bgColor: '#065f46' },
+                                    { name: 'Connection', icon: '🌐', bgColor: '#312e81' },
+                                    { name: 'Communication', icon: '💬', bgColor: '#701a75' },
+                                    { name: 'Consideration', icon: '🎯', bgColor: '#14532d' }
+                                ];
+                                let chosen = concepts[Math.floor(Math.random() * concepts.length)];
+                                powerups.push({
+                                    x: r.x,
+                                    y: r.y,
+                                    speed: 2,
+                                    concept: chosen.name,
+                                    icon: chosen.icon,
+                                    bgColor: chosen.bgColor
+                                });
+                            }
+
+                            rocks.splice(i, 1);
+                            score += 10;
+                            scoreEl.innerText = score;
+                            break;
+                        }
+                    }
+                }
+
+                if (rocks[i]) {
+                    let distToPlayer = Math.hypot(player.x - r.x, player.y - r.y);
+                    if (distToPlayer < player.radius + r.radius * 0.85) {
+                        createParticles(r.x, r.y, '#ef4444');
+                        rocks.splice(i, 1);
+
+                        if (player.hasShield) {
+                            player.hasShield = false;
+                            showActiveConceptText(i18n[currentLang].shieldAbsorbed);
+                        } else {
+                            lives--;
+                        }
+                        updateLivesDisplay();
+
+                        if (lives <= 0) {
+                            endGame();
+                            return;
+                        }
+                    } else if (r.y > canvas.height + r.radius) {
+                        rocks.splice(i, 1);
+                    }
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.restore();
+
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameActive = false;
+            finalScoreEl.innerText = score;
+
+            let statsHTML = '';
+            let totalCollected = 0;
+            const conceptMeta = {
+                Commitment: { icon: '🛡️', color: '#60a5fa' },
+                Courage: { icon: '⚡', color: '#facc15' },
+                Cultivation: { icon: '💥', color: '#f472b6' },
+                Compassion: { icon: '✨', color: '#34d399' },
+                Connection: { icon: '🌐', color: '#818cf8' },
+                Communication: { icon: '💬', color: '#e879f9' },
+                Consideration: { icon: '🎯', color: '#4ade80' }
+            };
+
+            for (let key in collectedStats) {
+                let count = collectedStats[key];
+                if (count > 0) {
+                    totalCollected += count;
+                    let meta = conceptMeta[key];
+                    statsHTML += `<div class="stats-item">
+                        <span>${meta.icon} <b style="color:${meta.color}">${key}</b></span>
+                        <span>x ${count}</span>
+                    </div>`;
+                }
+            }
+
+            if (totalCollected === 0) {
+                statsHTML = `<div style="text-align:center; color:#94a3b8; font-size:0.75rem;">${i18n[currentLang].noStats}</div>`;
+            }
+
+            conceptStatsContent.innerHTML = statsHTML;
+            gameoverScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
