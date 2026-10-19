@@ -179,7 +179,22 @@
             font-size: 1.2rem;
             color: #ffffff;
             text-shadow: 0 2px 10px rgba(56, 189, 248, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+
+        /* 🖼️ 首頁標題兩側的 Logo 圖片樣式 */
+        .title-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+        }
+
         p {
             color: #e2e8f0;
             font-size: 0.75rem;
@@ -367,7 +382,11 @@
                     <button class="lang-btn active" onclick="setLanguage('en')">English</button>
                 </div>
 
-                <h1 id="start-title">🌊 Utopia 7Cs Journey 🌊</h1>
+                <h1 id="start-title">
+                    <img src="SU image.jpg" class="title-logo" alt="logo">
+                    Utopia 7Cs Journey
+                    <img src="SU image.jpg" class="title-logo" alt="logo">
+                </h1>
                 
                 <div class="preview-tabs">
                     <button class="tab-btn" id="tab-easy" onclick="switchPreview('easy')">Easy</button>
@@ -420,12 +439,14 @@
     </div>
 
     <script>
+        const logoImgHtml = `<img src="SU image.jpg" class="title-logo" alt="logo">`;
+
         const i18n = {
             'en': {
                 labelScore: 'SCORE',
                 labelStatus: 'HP / SHIELD',
                 controlsHint: '← Drag screen or use A/D keys to steer →',
-                startTitle: '🌊 Utopia 7Cs Journey 🌊',
+                startTitle: `${logoImgHtml} Utopia 7Cs Journey ${logoImgHtml}`,
                 startDesc: 'Select your difficulty and steer through the reefs. Collect rare 7Cs power-ups:',
                 btnEasy: '🟢 Easy Mode (Relaxed)',
                 btnNormal: '🔵 Normal Mode (Balanced)',
@@ -467,7 +488,7 @@
                 labelScore: '得分',
                 labelStatus: '血量 / 護盾',
                 controlsHint: '← 滑動螢幕或使用 A/D 鍵控制航向 →',
-                startTitle: '🌊 Utopia 7Cs 航程 🌊',
+                startTitle: `${logoImgHtml} Utopia 7Cs 航程 ${logoImgHtml}`,
                 startDesc: '選擇難度並展開航程，沿途收集稀有 7Cs 精神道具：',
                 btnEasy: '🟢 簡單模式 (輕鬆體驗)',
                 btnNormal: '🔵 普通模式 (平衡挑戰)',
@@ -509,7 +530,7 @@
                 labelScore: '得分',
                 labelStatus: '血量 / 护盾',
                 controlsHint: '← 滑动屏幕或使用 A/D 键控制航向 →',
-                startTitle: '🌊 Utopia 7Cs 航程 🌊',
+                startTitle: `${logoImgHtml} Utopia 7Cs 航程 ${logoImgHtml}`,
                 startDesc: '选择难度并展开航程，沿途收集稀有 7Cs 精神道具：',
                 btnEasy: '🟢 简单模式 (轻松体验)',
                 btnNormal: '🔵 普通模式 (平衡挑战)',
@@ -583,7 +604,7 @@
             document.getElementById('label-score').innerText = data.labelScore;
             document.getElementById('label-status').innerText = data.labelStatus;
             document.getElementById('controls-hint').innerText = data.controlsHint;
-            document.getElementById('start-title').innerText = data.startTitle;
+            document.getElementById('start-title').innerHTML = data.startTitle;
             document.getElementById('start-desc').innerText = data.startDesc;
             document.getElementById('btn-easy').innerText = data.btnEasy;
             document.getElementById('btn-normal').innerText = data.btnNormal;
